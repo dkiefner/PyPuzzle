@@ -3,6 +3,8 @@ from puzzle_state import PuzzleState
 import solver
 import heuristic
 import time
+import threading
+import sys
 
 # ------------------------------------------------------------
 # Given states
@@ -17,54 +19,67 @@ final_array = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, None]]
 solvable_start_array_lc_vertical = [[7, 9, 1, 8], [5, None, 2, 10], [3, 4, 11, 6], [15, 13, 14, 12]]
 solvable_start_array_lc_horizontal = [[11, 10, None, 9], [12, 15, 3, 5], [13, 8, 2, 4], [1, 6, 7, 14]]
 
-# ------------------------------------------------------------
-# Start
-# ------------------------------------------------------------
-
-start_time = time.time()
-
-start_state = PuzzleState(solvable_start_array)
-final_state = PuzzleState(final_array)
 
 # ------------------------------------------------------------
-# Formatting
+# Solving thread
 # ------------------------------------------------------------
-print("start state:")
-start_state.pretty_print()
-print("final state:")
-final_state.pretty_print()
+def solve_puzzle():
+    start_state = PuzzleState(solvable_start_array)
+    final_state = PuzzleState(final_array)
+    lc_heuristic = heuristic.LinearConflict()
+    ida_star_solver = solver.IDAStar()
 
-# ------------------------------------------------------------
-# Solvability
-# ------------------------------------------------------------
-ida_star_solver = solver.IDAStar()
-print("inversions: " + str(start_state.get_inversion_count()))
-print("is_solvable: " + str(solver.Solver.is_solvable(start_state, final_state)))
+    # print info
+    print("start state:")
+    start_state.pretty_print()
+    print("final state:")
+    final_state.pretty_print()
+    print("inversions: " + str(start_state.get_inversion_count()))
+    print("is_solvable: " + str(solver.Solver.is_solvable(start_state, final_state)))
 
-
-# ------------------------------------------------------------
-# Heuristic costs
-# ------------------------------------------------------------
-
-lc_heuristic = heuristic.LinearConflict()
-print("sum costs=" + str(lc_heuristic.get_costs(start_state, final_state)))
+    # start solving
+    result = ida_star_solver.solve(start_state, final_state, lc_heuristic)
+    if isinstance(result, solver.Node):
+        print("Found solution:")
+        result.puzzle_state.pretty_print()
+    else:
+        print("Didn't found solution until depth.")
 
 
 # ------------------------------------------------------------
-# Node
+# Timer thread
 # ------------------------------------------------------------
-node = solver.Node(start_state, None, 0);
-node.get_children()
+def start_timer(cancel_event):
+    print()
+    start_time = time.time()
+    while not cancel_event.isSet():
+        elapsed_time = int(time.time() - start_time)
+        e_sec = int(elapsed_time % 60)
+        e_min = int((elapsed_time / 60) % 60)
+        e_hour = int((elapsed_time / (60 * 60)) % 60)
+        print("Elapsed time: {0:0=2d}:{1:0=2d}:{2:0=2d}".format(e_hour, e_min, e_sec), end="\r")
+        time.sleep(1)
+    return
+
+
+cancel_timer_event = threading.Event()
+timer_thread = threading.Thread(name="timer_thread", target=start_timer, args=(cancel_timer_event,))
 
 
 # ------------------------------------------------------------
-# Solve
+# Start program
 # ------------------------------------------------------------
-result = ida_star_solver.solve(start_state, final_state, lc_heuristic)
-if isinstance(result, solver.Node):
-    print("Found solution:")
-    result.puzzle_state.pretty_print()
-else:
-    print("Didn't found solution until depth.")
 
-print("\nFinished in " + str(time.time() - start_time) + " seconds")
+try:
+    timer_thread.start()
+    solve_puzzle()
+except (KeyboardInterrupt, SystemExit):
+    # stop timer thread if system exits before done solving
+    cancel_timer_event.set()
+    print("Solving canceled")
+    sys.exit()
+
+
+# cancel timer after solve is finished
+print("\nFinished")
+cancel_timer_event.set()
