@@ -25,15 +25,6 @@ class Solver(metaclass=ABCMeta):
 # Concrete solver class for IDA* algorithm
 # ------------------------------------------------------------
 class IDAStar(Solver):
-    # procedure ida_star(root)
-    # bound := h(root)
-    # loop
-    # t := search(root, 0, bound)
-    # if t = FOUND then return FOUND
-    # if t = ∞ then return NOT_FOUND
-    # bound := t
-    # end loop
-    # end procedure
     def solve(self, start_state, final_state, heuristic):
         start_state = start_state
         final_state = final_state
@@ -55,26 +46,10 @@ class IDAStar(Solver):
 
         return t
 
-    # function search(node, g, bound)
-    #   f := g + h(node)
-    #   if f > bound then return f
-    #   if is_goal(node) then return FOUND
-    #   min := ∞
-    #   for succ in successors(node) do
-    #     t := search(succ, g + cost(node, succ), bound)
-    #     if t = FOUND then return FOUND
-    #     if t < min then min := t
-    #   end for
-    #   return min
-    # end function
     def df_search(self, node, g, bound, final_state, heuristic):
         f = g + heuristic.get_costs(node.puzzle_state, final_state)
-
-        if bound > 4:  # TODO remove
-            return None
-
-        # print("check node:")
-        # print(node.puzzle_state.pretty_print())
+        # print("f={0}, g={1}, bound={2}".format(f, g, bound))
+        # print("check node:" + node.puzzle_state.get_formatted_state()())
 
         if f > bound:
             return f
@@ -85,8 +60,7 @@ class IDAStar(Solver):
 
         children = node.get_children()
         for child in children:
-            print("search children: f=" + str(f) + " g=" + str(g) + " bound=" + str(bound))
-            t = self.df_search(child, g + node.cost + 1, bound, final_state, heuristic)
+            t = self.df_search(child, g + node.cost, bound, final_state, heuristic)
             if isinstance(t, Node):
                 return t
             if t < c_min:
@@ -121,10 +95,23 @@ class Node:
             new_state.move(None, move)
             child = Node(new_state, self, self.cost + 1)
             children.append(child)
-            # print("new state: move=" + str(move.current_move) + " cost=" + str(self.cost + 1))
-            # new_state.pretty_print()
 
         return children
+
+    def get_formatted_solution(self):
+        node = self
+        puzzle_state_list = []
+        while node is not None:
+            puzzle_state_list.append(node.puzzle_state)
+            node = node.parent
+
+        puzzle_state_list.reverse()
+        formatted = ""
+        for depth, puzzle_state in enumerate(puzzle_state_list):
+            formatted += "\nDepth=" + str(depth)
+            formatted += puzzle_state.get_formatted_state()
+
+        return formatted
 
     def __hash__(self):
         return hash((self.cost, self.parent))

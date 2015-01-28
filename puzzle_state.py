@@ -76,27 +76,27 @@ class PuzzleState(object):
 
         return inversion_count
 
-    def pretty_print(self):
-        out = "\n"
+    def get_formatted_state(self):
+        formatted = "\n"
         for index, row in enumerate(self.state_array):
-            out += " " * 2
+            formatted += " " * 2
             for tile in row:
                 if len(str(tile)) == 1:
-                    out += " "
+                    formatted += " "
 
                 if tile is None:
-                    out += " " * 2
+                    formatted += " " * 2
                 else:
-                    out += str(tile)
+                    formatted += str(tile)
 
-                out += " " * 2
+                formatted += " " * 2
 
             if index < len(self.state_array) - 1:
-                out += "\n" * 2
+                formatted += "\n" * 2
             else:
-                out += "\n"
+                formatted += "\n"
 
-        print(out)
+        return formatted
 
     def __eq__(self, other):
         return (isinstance(other, self.__class__)
