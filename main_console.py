@@ -1,10 +1,16 @@
 # Main Module
-from puzzle_state import PuzzleState
-import solver
-import heuristic
 import time
 import threading
 import sys
+
+from model import heuristic, solver
+
+from model.puzzle_state import PuzzleState
+from model import solver
+from model import heuristic
+
+
+
 
 # ------------------------------------------------------------
 # Given states

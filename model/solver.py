@@ -1,5 +1,4 @@
 from abc import ABCMeta, abstractmethod
-from puzzle_state import PuzzleState
 import copy
 import sys
 
