@@ -1,5 +1,6 @@
 # The puzzle
 from itertools import chain
+import random
 
 
 class PuzzleState(object):
@@ -47,6 +48,12 @@ class PuzzleState(object):
             movements.append(Move(Move.DOWN))
 
         return movements
+
+    def shuffle(self):
+        for row in self.state_array:
+            random.shuffle(row)
+        random.shuffle(self.state_array)
+        self.position_map = PuzzleState.get_position_map(self.state_array)
 
     def move(self, moving_tile, move):
         old_pos = self.get_position(moving_tile)
