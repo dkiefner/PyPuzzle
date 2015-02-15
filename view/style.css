@@ -1,0 +1,13 @@
+.tile-base {
+    border-width: 2px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 70px;
+    height: 100px;
+    width: 100px;
+    margin-top: 10px;
+}
+.tile-occupied {
+    border-color: black;
+    border-style: solid;
+}
