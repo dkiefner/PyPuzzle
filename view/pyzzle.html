@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Demo</title>
+
+    <style>
+		.tile-base {
+    		border-width: 2px;
+    		text-align: center;
+			vertical-align: middle;
+			line-height: 70px; 
+			height: 100px;
+    		width: 100px;
+    		margin-top: 10px;
+		}
+		.tile-occupied {
+			border-color: black;
+			border-style: solid;
+		}
+	</style>
+</head>
+<body>
+    <script src="jquery-2.1.3.js"></script>
+    <script>
+ 
+    $( document ).ready(function() {
+	    $( ".board" ).append( "<div id='tile_empty' class='tile-base'><p>(empty)</p></div>" );
+
+	    for(i=1; i<=15; i++){
+	    	$( ".board" ).append( "<div class='tile-base tile-occupied'><p>" + i + "</p></div>" );
+	    }
+
+	    $( '.tile-occupied' ).click(function( event ) {
+	    	console.log(event)
+	    	console.log($(this))
+
+	    	if($(this).isAfter('#tile_empty')) {
+	        	$(this).insertBefore($(this).prev('#tile_empty'));
+	    	} else if($(this).isBefore('#tile_empty')) {
+	    		$(this).insertAfter($('#tile_empty'));
+	    	}
+	    });
+
+	    $.fn.isAfter = function(sel){
+		  return this.prev(sel).length !== 0;
+		}
+		$.fn.isBefore= function(sel){
+		  return this.next(sel).length !== 0;
+		}
+	});
+
+
+ 
+    </script>
+
+
+	<div class="board" />
+
+</body>
+</html>
