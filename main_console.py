@@ -34,7 +34,7 @@ def solve_puzzle(start_state, final_state, p_heuristic, p_solver):
 
     # start solving
     result = p_solver.solve(start_state, final_state, p_heuristic)
-    if isinstance(result, p_solver.Node):
+    if isinstance(result, solver.Node):
         print("Found solution:")
         print("cost=" + str(result.cost))
         print(result.get_formatted_solution())
@@ -76,11 +76,11 @@ timer_thread = threading.Thread(name="timer_thread", target=start_timer, args=(c
 lc_heuristic = heuristic.LinearConflict()
 ida_star_solver = solver.IDAStar()
 final_state = PuzzleState(copy.deepcopy(default_final_array))
-start_state = PuzzleState(copy.deepcopy(default_final_array))
+start_state = PuzzleState(copy.deepcopy(solvable_start_array_simple))
 
 # create random start state
-while not ida_star_solver.is_solvable(start_state, final_state) or start_state == final_state:
-    start_state.shuffle()
+# while not ida_star_solver.is_solvable(start_state, final_state) or start_state == final_state:
+#    start_state.shuffle()
 
 # start
 try:
