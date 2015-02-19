@@ -6,16 +6,37 @@ function setupBoard(board_dimension) {
     var board = $( ".board" );
 
     createTiles(board, board_dimension);
+    empty_tile = $("#tile_empty");
 
     $( '.tile-occupied' ).click(function( event ) {
-        console.log($(this))
-
-        if($(this).isAfter('#tile_empty')) {
-            $(this).insertBefore($(this).prev('#tile_empty'));
-        } else if($(this).isBefore('#tile_empty')) {
-            $(this).insertAfter($('#tile_empty'));
+        if (isSwappable($(this), empty_tile)) {
+            // TODO
+//        if($(this).isAfter('#tile_empty')) {
+//            $(this).insertBefore($(this).prev('#tile_empty'));
+//        } else if($(this).isBefore('#tile_empty')) {
+//            $(this).insertAfter($('#tile_empty'));
+//        }
         }
     });
+}
+
+function isSwappable(tile, empty_tile) {
+    var tile_x = tile.index();
+    var tile_y = tile.parent().index();
+    var empty_x = empty_tile.index();
+    var empty_y = empty_tile.parent().index();
+    console.log("tile_pos=" + tile_x + ";" + tile_y + " empty_pos=" + empty_x + ";" + empty_y);
+
+    var is_swappable = false;
+    if (tile_x == empty_x) {
+        is_swappable = Math.abs(tile_y - empty_y) == 1;
+    } else if (tile_y == empty_y) {
+        is_swappable = Math.abs(tile_x - empty_x) == 1;
+    }
+
+    console.log("is_swappable=" + is_swappable)
+
+    return is_swappable;
 }
 
 function createTiles(board, board_dimension) {
